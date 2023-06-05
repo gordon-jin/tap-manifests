@@ -1,0 +1,40 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: py-gitops
+  annotations:
+    ootb.apps.tanzu.vmware.com/servicebinding-workload: "true"
+    ootb.apps.tanzu.vmware.com/apidescriptor-ref: "true"
+    kapp.k14s.io/change-rule: upsert after upserting servicebinding.io/ServiceBindings
+  labels:
+    app.kubernetes.io/part-of: py-gitops
+    apps.tanzu.vmware.com/workload-type: web
+    app.kubernetes.io/component: run
+    carto.run/workload-name: py-gitops
+spec:
+  template:
+    metadata:
+      annotations:
+        apps.tanzu.vmware.com/debug: "true"
+        apps.tanzu.vmware.com/live-update: "true"
+        conventions.carto.run/applied-conventions: |-
+          appliveview-sample/app-live-view-appflavour-check
+          developer-conventions/add-source-image-label
+          spring-boot-convention/auto-configure-actuators-check
+          spring-boot-convention/app-live-view-appflavour-check
+        developer.apps.tanzu.vmware.com/image-source-digest: ghcr.io/gordon-jin/sources1/openshift/py-program:latest@sha256:99dcb4a225808c455bb5b513c740813919e88a97ea439544bbe47bab5d94778b
+        developer.conventions/target-containers: workload
+      labels:
+        app.kubernetes.io/component: run
+        app.kubernetes.io/part-of: py-gitops
+        apps.tanzu.vmware.com/workload-type: web
+        carto.run/workload-name: py-gitops
+    spec:
+      containers:
+      - image: ghcr.io/gordon-jin/supply_chain_basic/py-gitops-tap-openshift-w01-s002@sha256:bbe5311ce92be04b082a81eacbde6dcaa55b2e3f6e58412066ebaeb2feec0c34
+        name: workload
+        resources: {}
+        securityContext:
+          runAsUser: 1000
+      serviceAccountName: default
+
